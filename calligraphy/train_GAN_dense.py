@@ -155,7 +155,7 @@ fixed_indices = random.sample(range(len(dataset)), 5)
 fixed_samples = [dataset[idx] for idx in fixed_indices]
 
 # Training loop
-num_epochs = 50
+num_epochs = 100
 for epoch in range(num_epochs):
     generator.train()
     discriminator.train()
