@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
+import os
 import torch
 import torch.nn as nn
 from torchvision import transforms
 from PIL import Image
-import os
+from tqdm import tqdm
 import numpy as np
-import matplotlib.pyplot as plt
 
 # Define device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f'device: {device}')
+print(f"Device: {device}")
 
 # Define DenseBlock and Generator for CycleGAN
 class DenseBlock(nn.Module):
@@ -72,7 +72,7 @@ class Generator(nn.Module):
 G_XtoY = Generator().to(device)
 checkpoint_path = "/gpfsnyu/scratch/yl10337/cycleGAN_checkpoints/checkpoint_epoch_3.pth"
 checkpoint = torch.load(checkpoint_path, map_location=device)
-G_XtoY.load_state_dict(checkpoint['G_XtoY'])
+G_XtoY.load_state_dict(checkpoint["G_XtoY"])
 G_XtoY.eval()
 
 # Define image preprocessing
@@ -82,55 +82,44 @@ transform = transforms.Compose([
     transforms.Normalize((0.5,), (0.5,))
 ])
 
-# Inference function
-def infer_and_save_grid(input_string, source_folder, model, transform, device, output_path):
+# Define the processing function
+def process_image_folder(input_folder, output_folder, model, transform, device):
     """
-    Performs inference on the input string, generating a vertical grid of calligraphy works arranged
-    from right to left for each separated part of the string.
+    Processes all images in the input folder using the trained CycleGAN model and saves them
+    to the output folder with the same filenames.
 
     Args:
-        input_string (str): Chinese character string, separated by ',' and '.'.
-        source_folder (str): Path to source images.
-        model (torch.nn.Module): Trained Generator model (G_XtoY).
-        transform (torchvision.transforms.Compose): Preprocessing transformations.
-        device (torch.device): Device for inference.
-        output_path (str): Path to save the final grid image.
+        input_folder (str): Path to the folder containing input images.
+        output_folder (str): Path to the folder where processed images will be saved.
+        model (torch.nn.Module): Trained Generator model.
+        transform (torchvision.transforms.Compose): Transformations for input images.
+        device (torch.device): Device for computation (CPU or GPU).
     """
-    # Split the input string by ',' and '.'
-    entries = [entry.strip() for entry in input_string.replace('.', ',').split(',') if entry.strip()]
-    
-    # Determine grid size
-    max_length = max(len(entry) for entry in entries)
-    num_entries = len(entries)
+    os.makedirs(output_folder, exist_ok=True)
 
-    # Initialize the grid array
-    grid = np.ones((num_entries * 128, max_length * 128)) * 255  # White background
+    # Get all image files in the input folder
+    image_files = [f for f in os.listdir(input_folder) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
 
-    for row_idx, entry in enumerate(entries):
-        for col_idx, char in enumerate(reversed(entry)):  # Right to left
-            img_path = os.path.join(source_folder, f"{char}.png")
-            if os.path.exists(img_path):
-                # Load and preprocess the image
-                source_img = Image.open(img_path).convert("L")
-                processed_img = transform(source_img).unsqueeze(0).to(device)
+    for image_file in tqdm(image_files, desc="Processing Images"):
+        input_path = os.path.join(input_folder, image_file)
+        output_path = os.path.join(output_folder, image_file)
 
-                # Generate the calligraphy image
-                with torch.no_grad():
-                    generated_img = model(processed_img).squeeze().cpu().numpy()
-                    generated_img = (generated_img * 0.5 + 0.5) * 255  # Unnormalize to [0, 255]
-                    generated_img = generated_img.astype(np.uint8)
+        # Load and preprocess the image
+        image = Image.open(input_path).convert("L")
+        processed_image = transform(image).unsqueeze(0).to(device)
 
-                # Place the image in the grid
-                grid[row_idx * 128:(row_idx + 1) * 128, 
-                     (max_length - col_idx - 1) * 128:(max_length - col_idx) * 128] = generated_img
+        # Generate the output using the model
+        with torch.no_grad():
+            output = model(processed_image).squeeze().cpu().numpy()
+            output = (output * 0.5 + 0.5) * 255  # Denormalize to [0, 255]
+            output = output.astype(np.uint8)
 
-    # Save the grid image
-    Image.fromarray(grid).convert("L").save(output_path)
+        # Save the processed image
+        Image.fromarray(output).save(output_path)
 
 # Example usage
 if __name__ == "__main__":
-    input_string = "枯藤老树昏鸦,小桥流水人家,古道西风瘦马.夕阳西下,断肠人在天涯."
-    source_image_folder = "/gpfsnyu/scratch/yl10337/normal_pingfang"
-    output_file_path = "/gpfsnyu/scratch/yl10337/cycleGAN_calligraphy_grid.png"
-    infer_and_save_grid(input_string, source_image_folder, G_XtoY, transform, device, output_file_path)
-    print(f"Calligraphy grid saved to {output_file_path}")
+    input_folder = "/gpfsnyu/scratch/yl10337/bdsr_source"
+    output_folder = "/gpfsnyu/scratch/yl10337/cycleGAN_processed_bdsr"
+    process_image_folder(input_folder, output_folder, G_XtoY, transform, device)
+    print(f"Processed images saved to {output_folder}")

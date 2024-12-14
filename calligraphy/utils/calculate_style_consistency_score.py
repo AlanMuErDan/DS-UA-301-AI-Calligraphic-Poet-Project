@@ -21,6 +21,14 @@ def calculate_style_consistency_score(model, image1, image2, device):
     Returns:
         float: Cosine similarity score between extracted features of image1 and image2.
     """
+
+    # transform
+    transform = transforms.Compose([
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
+    ])
+    
     model.eval()
     with torch.no_grad():
         if isinstance(image1, Image.Image):
