@@ -9,7 +9,9 @@ from tqdm import tqdm
 import random
 import numpy as np
 
-# Define paths for paired data (replace with your own paths)
+# --------------------------------------
+# define your file path
+# --------------------------------------
 input_source = "/gpfsnyu/scratch/yl10337/bdsr_source"
 input_target = "/gpfsnyu/scratch/yl10337/bdsr/1000"
 checkpoint_dir = "/gpfsnyu/scratch/yl10337/GAN_checkpoints"
@@ -17,7 +19,7 @@ output_images_dir = "/gpfsnyu/scratch/yl10337/GAN_outputimages"
 os.makedirs(checkpoint_dir, exist_ok=True)
 os.makedirs(output_images_dir, exist_ok=True)
 
-# Define a simple dataset for paired data
+# paired dataset 
 class PairedDataset(Dataset):
     def __init__(self, source_dir, target_dir, transform=None):
         self.source_dir = source_dir
@@ -42,13 +44,14 @@ class PairedDataset(Dataset):
 
         return source_image, target_image, self.source_files[idx]
 
-# Define transformations and DataLoader
+# transform 
 transform = transforms.Compose([
     transforms.Resize((128, 128)),
     transforms.ToTensor(),
     transforms.Normalize((0.5,), (0.5,))
 ])
 
+# dataloader
 dataset = PairedDataset(input_source, input_target, transform=transform)
 data_loader = DataLoader(dataset, batch_size=1, shuffle=True)
 
@@ -67,7 +70,7 @@ class DenseBlock(nn.Module):
     def forward(self, x):
         return torch.cat([x, self.block(x)], 1)  # Concatenate along the channel dimension
 
-# Generator with Dense Blocks
+# Generator 
 class Generator(nn.Module):
     def __init__(self, input_channels=1, output_channels=1, num_dense_blocks=5):
         super(Generator, self).__init__()
@@ -138,7 +141,7 @@ class Discriminator(nn.Module):
     def forward(self, x):
         return self.model(x)
 
-# Initialize models, optimizer, and loss function
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f'device: {device}')
 generator = Generator().to(device)
@@ -148,13 +151,13 @@ optimizer_G = optim.Adam(generator.parameters(), lr=0.0002, betas=(0.5, 0.999))
 optimizer_D = optim.Adam(discriminator.parameters(), lr=0.0002, betas=(0.5, 0.999))
 
 adversarial_loss = nn.BCELoss()
-pixelwise_loss = nn.L1Loss()  # Pixel-wise loss for paired data
+pixelwise_loss = nn.L1Loss()  # pixel-wise loss for paired data
 
-# Pre-select 5 fixed characters
+# pre-select 5 fixed characters
 fixed_indices = random.sample(range(len(dataset)), 5)
 fixed_samples = [dataset[idx] for idx in fixed_indices]
 
-# Training loop
+
 num_epochs = 100
 for epoch in range(num_epochs):
     generator.train()
@@ -164,33 +167,26 @@ for epoch in range(num_epochs):
 
     for i, (source, target, _) in enumerate(tqdm(data_loader)):
         source, target = source.to(device), target.to(device)
-        
-        # Get the output size from the discriminator for the current input shape
         valid = torch.ones_like(discriminator(target))
         fake = torch.zeros_like(discriminator(target))
 
-        # Train Generator
+        # train generator
         optimizer_G.zero_grad()
         fake_target = generator(source)
         pred_fake = discriminator(fake_target)
-        
-        # Adversarial loss and pixelwise loss
         loss_G_adv = adversarial_loss(pred_fake, valid)
         loss_G_pixel = pixelwise_loss(fake_target, target)
-        loss_G = loss_G_adv + 100 * loss_G_pixel  # Weighted sum of losses
-        
+        loss_G = loss_G_adv + 100 * loss_G_pixel    # adversarial loss and pixelwise loss
         loss_G.backward()
         optimizer_G.step()
         epoch_loss_G += loss_G.item()
 
-        # Train Discriminator
+        # train Discriminator
         optimizer_D.zero_grad()
         pred_real = discriminator(target)
         loss_D_real = adversarial_loss(pred_real, valid)
-
         pred_fake = discriminator(fake_target.detach())
         loss_D_fake = adversarial_loss(pred_fake, fake)
-        
         loss_D = (loss_D_real + loss_D_fake) / 2
         loss_D.backward()
         optimizer_D.step()
@@ -198,7 +194,7 @@ for epoch in range(num_epochs):
 
     print(f"Epoch [{epoch+1}/{num_epochs}] - Loss G: {epoch_loss_G / len(data_loader):.4f}, Loss D: {epoch_loss_D / len(data_loader):.4f}")
 
-    # Save checkpoint every epoch
+    # save model
     checkpoint_path = os.path.join(checkpoint_dir, f"checkpoint_epoch_{epoch+1}.pth")
     torch.save({
         'epoch': epoch + 1,
@@ -209,7 +205,7 @@ for epoch in range(num_epochs):
     }, checkpoint_path)
     print(f"Checkpoint saved at epoch {epoch + 1}")
 
-    # Save images for fixed characters
+    # save images
     generator.eval()
     for idx, (source, target, filename) in enumerate(fixed_samples):
         source = source.unsqueeze(0).to(device)
@@ -217,8 +213,6 @@ for epoch in range(num_epochs):
             generated = generator(source).squeeze().cpu().numpy()
             generated = (generated * 0.5 + 0.5) * 255  # Unnormalize and scale to [0, 255]
             generated = generated.astype(np.uint8)
-
-            # Save images
             output_dir = os.path.join(output_images_dir, f"epoch_{epoch+1}")
             os.makedirs(output_dir, exist_ok=True)
             generated_image_path = os.path.join(output_dir, f"generated_{filename}")
