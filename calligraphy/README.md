@@ -2,7 +2,14 @@
 
 ## Data
 
-Data needed is varied for **GAN** and **CycleGAN** model. 
+**Source Font**: one can choose between the system font **normal_pingfang** or **normal_song**. The code to generate source font images are provided in ``generate_source_img.py``. The dataset we used can be found at 
+
+
+Dataset needed is varied for **GAN** and **CycleGAN** model:
+
+1. **GAN:** we need **paired data**, one can run ``OCR_detector.py`` on their source folder and mannually check. Here we provide our checked of *bdsr* images in ``recognized_bdsr.txt`` in *mmanual_ocr* folder. 
+
+2. **CycleGAN:** we only need **unpaired data**, 
 
 ## GAN
 
@@ -10,6 +17,8 @@ Data needed is varied for **GAN** and **CycleGAN** model.
 
 ## Comparison
 
-We use two evaluation metrics to evaluate different models:
+We use two standard evaluation metrics to evaluate different models:
 
-- **Consistent Score:** We trained a CNN-based classification model to differentiate between various calligraphy styles. After comparing several architectures, we selected DenseNet as the base model. The well-trained DenseNet model serves as a style-consistent feature extractor. To rigorously evaluate the model’s ability to learn styles, we calculate the cosine similarity between the generated images and the real images. You can train your own feature extractor in the *train_classifier* folder. The calculation function is stored in *utils* folder name ``calculate_style_consistency_score.py``. 
+1. **Consistent Score:** We trained a CNN-based classification model to differentiate between various calligraphy styles. After comparing several architectures, we selected DenseNet as the base model. The well-trained DenseNet model serves as a style-consistent feature extractor. To rigorously evaluate the model’s ability to learn styles, we calculate the cosine similarity between the generated images and the real images. You can train your own feature extractor in the *train_classifier* folder. The calculation function is stored in *utils* folder name ``calculate_style_consistency_score.py``. One can simply get the score by ``evaluate_style.py``.
+
+2. **OCR Accuracy:** We use *easyocr* to recognize characters. After that we calculate accuracy score. The calculation function is stored in *utils* folder name ``OCR_detector.py``. One can simply get the score by ``evaluate_ocr_accuracy.py``. 
