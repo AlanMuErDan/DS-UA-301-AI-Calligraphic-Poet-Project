@@ -23,7 +23,7 @@ os.makedirs(model_save_dir, exist_ok=True)
 # Transformations
 transform = {
     "train": transforms.Compose([
-        transforms.Resize((224, 224)),  # Resize images for VGG
+        transforms.Resize((224, 224)),  # Resize images for DenseNet
         transforms.RandomHorizontalFlip(),  # Data augmentation
         transforms.RandomRotation(15),
         transforms.ToTensor(),

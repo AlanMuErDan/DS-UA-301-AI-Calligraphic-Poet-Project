@@ -4,7 +4,7 @@ from torch import nn, optim
 from torchvision import datasets, transforms, models
 from torch.utils.data import DataLoader, Subset
 from tqdm import tqdm
-from torchvision.models import resnet50
+from torchvision.models import inception_v3
 
 # CUDA
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -13,17 +13,17 @@ print(f'device: {device}')
 #----------------------------------
 # change this to your own directory
 #----------------------------------
-train_dir = "./train"
+train_dir = "./train"    
 test_dir = "./test"
 
 # Directory to save models
-model_save_dir = "./resnet50_binary_checkpoints"
+model_save_dir = "./inceptionv3_binary_checkpoints"
 os.makedirs(model_save_dir, exist_ok=True)
 
 # Transformations
 transform = {
     "train": transforms.Compose([
-        transforms.Resize((224, 224)),  # Resize images for ResNet
+        transforms.Resize((299, 299)),  # Resize images for Inception
         transforms.RandomHorizontalFlip(),  
         transforms.RandomRotation(15),
         transforms.ToTensor(),
@@ -67,14 +67,14 @@ train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
 # model
-model = models.resnet50(pretrained=True)
-model.fc = nn.Linear(model.fc.in_features, 2)  
+model = inception_v3(aux_logits=False)  
+model.fc = nn.Linear(model.fc.in_features, 2)
 model = model.to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 # train function
-def train_model_with_checkpoints(model, dataloaders, criterion, optimizer, num_epochs=10, save_dir="./resnet50_binary_checkpoints"):
+def train_model_with_checkpoints(model, dataloaders, criterion, optimizer, num_epochs=10, save_dir="./vgg16_binary_checkpoints"):
     for epoch in range(num_epochs):
         print(f"Epoch {epoch+1}/{num_epochs}")
         print("-" * 10)
@@ -112,7 +112,7 @@ def train_model_with_checkpoints(model, dataloaders, criterion, optimizer, num_e
             print(f"{phase.capitalize()} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}")
 
         # save model
-        checkpoint_path = os.path.join(save_dir, f"resnet50_epoch_{epoch+1}.pth")
+        checkpoint_path = os.path.join(save_dir, f"Inception_v3_epoch_{epoch+1}.pth")
         torch.save(model.state_dict(), checkpoint_path)
         print(f"Model saved to {checkpoint_path}")
 
