@@ -2,4 +2,4 @@
 
 ## Introduction
 
-In this project, we ...
+In this project, we ... like carrots
