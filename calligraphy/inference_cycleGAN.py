@@ -7,11 +7,11 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Load Generator model and checkpoint
+# Define device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f'device: {device}')
 
-# DenseBlock for Generator
+# Define DenseBlock and Generator for CycleGAN
 class DenseBlock(nn.Module):
     def __init__(self, channels, growth_rate=256):
         super(DenseBlock, self).__init__()
@@ -24,13 +24,11 @@ class DenseBlock(nn.Module):
         )
 
     def forward(self, x):
-        return torch.cat([x, self.block(x)], 1)  # Concatenate along the channel dimension
+        return torch.cat([x, self.block(x)], 1)
 
-# Generator 
 class Generator(nn.Module):
     def __init__(self, input_channels=1, output_channels=1, num_dense_blocks=5):
         super(Generator, self).__init__()
-        # Encoder
         self.initial = nn.Sequential(
             nn.Conv2d(input_channels, 64, kernel_size=7, stride=1, padding=3),
             nn.InstanceNorm2d(64),
@@ -44,16 +42,12 @@ class Generator(nn.Module):
             nn.InstanceNorm2d(256),
             nn.ReLU(inplace=True)
         )
-
-        # Dense Blocks
         channels = 256
         dense_blocks = []
         for _ in range(num_dense_blocks):
             dense_blocks.append(DenseBlock(channels, growth_rate=256))
             channels += 256
         self.transfer = nn.Sequential(*dense_blocks)
-        
-        # Decoder
         self.upsampling = nn.Sequential(
             nn.ConvTranspose2d(channels, 128, kernel_size=3, stride=2, padding=1, output_padding=1),
             nn.InstanceNorm2d(128),
@@ -74,11 +68,12 @@ class Generator(nn.Module):
         x = self.upsampling(x)
         return self.final(x)
 
-generator = Generator(1, 1).to(device)
-checkpoint_path = "/gpfsnyu/scratch/yl10337/DS-UA-301-AI-Calligraphic-Poet-Project/calligraphy/trained_model/bdsr_GAN.pth"
+# Load the trained CycleGAN model
+G_XtoY = Generator().to(device)
+checkpoint_path = "/gpfsnyu/scratch/yl10337/cycleGAN_checkpoints/checkpoint_epoch_3.pth"
 checkpoint = torch.load(checkpoint_path, map_location=device)
-generator.load_state_dict(checkpoint['generator_state_dict'])
-generator.eval()
+G_XtoY.load_state_dict(checkpoint['G_XtoY'])
+G_XtoY.eval()
 
 # Define image preprocessing
 transform = transforms.Compose([
@@ -96,7 +91,7 @@ def infer_and_save_grid(input_string, source_folder, model, transform, device, o
     Args:
         input_string (str): Chinese character string, separated by ',' and '.'.
         source_folder (str): Path to source images.
-        model (torch.nn.Module): Trained Generator model.
+        model (torch.nn.Module): Trained Generator model (G_XtoY).
         transform (torchvision.transforms.Compose): Preprocessing transformations.
         device (torch.device): Device for inference.
         output_path (str): Path to save the final grid image.
@@ -135,7 +130,7 @@ def infer_and_save_grid(input_string, source_folder, model, transform, device, o
 # Example usage
 if __name__ == "__main__":
     input_string = "枯藤老树昏鸦,小桥流水人家,古道西风瘦马.夕阳西下,断肠人在天涯."
-    source_image_folder = "/gpfsnyu/scratch/yl10337/normal_pingfang"
-    output_file_path = "/gpfsnyu/scratch/yl10337/calligraphy_grid.png"
-    infer_and_save_grid(input_string, source_image_folder, generator, transform, device, output_file_path)
+    source_image_folder = "/gpfsnyu/scratch/yl10337/bdsr/bdsr_source"
+    output_file_path = "/gpfsnyu/scratch/yl10337/cycleGAN_calligraphy_grid.png"
+    infer_and_save_grid(input_string, source_image_folder, G_XtoY, transform, device, output_file_path)
     print(f"Calligraphy grid saved to {output_file_path}")
