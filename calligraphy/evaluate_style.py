@@ -71,7 +71,7 @@ if __name__ == "__main__":
     ])
 
     # Define paths for generated and real images
-    generated_images_path = "/gpfsnyu/scratch/yl10337/GAN_processed_bdsr"
+    generated_images_path = "/gpfsnyu/scratch/yl10337/cycleGAN_processed_bdsr"
     real_images_path = "/gpfsnyu/scratch/yl10337/bdsr/1000"
 
     # Calculate the average style consistency score

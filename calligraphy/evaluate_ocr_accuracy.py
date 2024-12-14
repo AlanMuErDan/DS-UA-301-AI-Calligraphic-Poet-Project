@@ -36,7 +36,7 @@ if __name__ == "__main__":
     # ---------------------------------------
     # Specify your folders here:
     # ---------------------------------------
-    generated_images_path = "/gpfsnyu/scratch/yl10337/GAN_processed_bdsr"
+    generated_images_path = "/gpfsnyu/scratch/yl10337/cycleGAN_processed_bdsr"
     real_images_path = "/gpfsnyu/scratch/yl10337/bdsr/1000"
     
     accuracy = evaluate_ocr_accuracy(generated_images_path, real_images_path)
