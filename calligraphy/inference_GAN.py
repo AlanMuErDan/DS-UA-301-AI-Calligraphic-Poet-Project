@@ -76,7 +76,7 @@ class Generator(nn.Module):
         return self.final(x)
 
 generator = Generator(1, 1).to(device)
-checkpoint_path = "/gpfsnyu/scratch/yl10337/well-trained-model/bdsr_GAN.pth"
+checkpoint_path = "/gpfsnyu/scratch/yl10337/well-trained-model/bdsr_GAN_50.pth"
 checkpoint = torch.load(checkpoint_path, map_location=device)
 generator.load_state_dict(checkpoint['generator_state_dict'])
 generator.eval()

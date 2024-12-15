@@ -71,9 +71,9 @@ class Generator(nn.Module):
 
 # Load the trained CycleGAN model
 G_XtoY = Generator().to(device)
-checkpoint_path = "/gpfsnyu/scratch/yl10337/cycleGAN_checkpoints/checkpoint_epoch_52.pth"
+checkpoint_path = "/gpfsnyu/scratch/yl10337/well-trained-model/bdsr_CycleGAN_29.pth"
 checkpoint = torch.load(checkpoint_path, map_location=device)
-G_XtoY.load_state_dict(checkpoint['G_XtoY'])
+G_XtoY.load_state_dict(checkpoint['G_XtoY_state_dict'])
 G_XtoY.eval()
 
 # Define image preprocessing
