@@ -44,3 +44,8 @@ We use two standard evaluation metrics to evaluate different models:
 1. **Consistent Score:** We trained a CNN-based classification model to differentiate between various calligraphy styles. After comparing several architectures, we selected DenseNet as the base model. The well-trained DenseNet model serves as a style-consistent feature extractor. To rigorously evaluate the model’s ability to learn styles, we calculate the cosine similarity between the generated images and the real images. You can train your own feature extractor in the *train_classifier* folder. The calculation function is stored in *utils* folder name ``calculate_style_consistency_score.py``. One can simply get the score by ``evaluate_style.py``.
 
 2. **OCR Accuracy:** We use *easyocr* to recognize characters. After that we calculate accuracy score. The calculation function is stored in *utils* folder name ``OCR_detector.py``. One can simply get the score by ``evaluate_ocr_accuracy.py``. 
+
+| Model      | Style Score | OCR Accuracy |
+|------------|-------------|--------------|
+| GAN        | 0.8790      | 68%          |
+| CycleGAN   | 0.8732      | 69.2%        |
