@@ -24,6 +24,8 @@ One can train GAN model using ``train_GAN.py``.
 
 - **Generator**: There are three main parts in this block, we have a downsampling encoder, and *n* Dense Blocks with *n* can be defined, and a upsampling decoder. The aim for **DenseBlock** is to enhance feature extraction and prevent vanishing gradients. 
 
+![alt text](./imgs/GAN_archi.png)
+
 ## CycleGAN
 
 One can train CycleGAN model using ``train_cycleGAN.py``. 
