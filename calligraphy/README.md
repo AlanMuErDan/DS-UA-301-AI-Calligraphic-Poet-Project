@@ -30,6 +30,13 @@ One can train GAN model using ``train_GAN.py``.
 
 One can train CycleGAN model using ``train_cycleGAN.py``. 
 
+- **Loss Functions**: The loss contains mainly two part. The fist part is adversial loss which are just similar to normal GAN. Cycle Consistency Loss is new here, it will enforce model to leaerning meaningful mapping but not generate random things to fool the Discriminator or the model collapse. This strong restrictions will make sure that model retain some meaningful informations and just based on that information to perform a style transform. Formulas are stated:
+
+![](./imgs/CycleGAN_loss.png)
+
+![](./imgs/CycleGAN_archi1.png)
+![](./imgs/CycleGAN_archi2.png)
+
 ## Comparison
 
 We use two standard evaluation metrics to evaluate different models:
