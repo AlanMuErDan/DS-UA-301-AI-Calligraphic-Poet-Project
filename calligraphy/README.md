@@ -29,7 +29,7 @@ $$
 $$
 
 
-- **DenseBlock**: There are three main parts in this block, we have a downsampling encoder, and *n* Dense Blocks with *n* can be defined, and a upsampling decoder.
+- **Generator**: There are three main parts in this block, we have a downsampling encoder, and *n* Dense Blocks with *n* can be defined, and a upsampling decoder. The aim for **DenseBlock** is to enhance feature extraction and prevent vanishing gradients. 
 
 ## CycleGAN
 
