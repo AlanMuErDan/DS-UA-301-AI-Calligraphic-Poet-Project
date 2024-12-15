@@ -18,15 +18,8 @@ Dataset needed is varied for **GAN** and **CycleGAN** model:
 One can train GAN model using ``train_GAN.py``. 
 
 - **Loss Functions**: For loss function, we use both min-max adversial loss and pixel-wise loss. Adversial loss improves the authenticity, while the pixel-wise loss further help the model to learn strong feature representing the style. The formulas are stated as follows:
-$$
-\mathcal{L}_{\text{adv}} =  \mathbb{E}_{x} [\log D(x)] + \mathbb{E}_{z} [\log (1-D(G(x)))]
-$$
-$$
-\mathcal{L}_{\text{pixel}} = \| G(x) - y \|_1
-$$
-$$
-\mathcal{L} = \mathcal{L}_{\text{adv}} + \lambda \mathcal{L}_{\text{pixel}}
-$$
+
+![](./imgs/GAN_loss.png)
 
 
 - **Generator**: There are three main parts in this block, we have a downsampling encoder, and *n* Dense Blocks with *n* can be defined, and a upsampling decoder. The aim for **DenseBlock** is to enhance feature extraction and prevent vanishing gradients. 
