@@ -6,6 +6,7 @@ from PIL import Image
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+import argparse
 
 # Load Generator model and checkpoint
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -75,7 +76,7 @@ class Generator(nn.Module):
         return self.final(x)
 
 generator = Generator(1, 1).to(device)
-checkpoint_path = "/gpfsnyu/scratch/yl10337/DS-UA-301-AI-Calligraphic-Poet-Project/calligraphy/trained_model/bdsr_GAN.pth"
+checkpoint_path = "/gpfsnyu/scratch/yl10337/well-trained-model/bdsr_GAN.pth"
 checkpoint = torch.load(checkpoint_path, map_location=device)
 generator.load_state_dict(checkpoint['generator_state_dict'])
 generator.eval()
@@ -134,8 +135,10 @@ def infer_and_save_grid(input_string, source_folder, model, transform, device, o
 
 # Example usage
 if __name__ == "__main__":
-    input_string = "枯藤老树昏鸦,小桥流水人家,古道西风瘦马.夕阳西下,断肠人在天涯."
-    source_image_folder = "/gpfsnyu/scratch/yl10337/normal_pingfang"
-    output_file_path = "/gpfsnyu/scratch/yl10337/calligraphy_grid.png"
-    infer_and_save_grid(input_string, source_image_folder, generator, transform, device, output_file_path)
-    print(f"Calligraphy grid saved to {output_file_path}")
+    parser = argparse.ArgumentParser(description="Generate calligraphy grid from input string")
+    parser.add_argument("--input_string", type=str, required=True, help="Chinese character string (e.g., 枯藤老树昏鸦,小桥流水人家,古道西风瘦马.夕阳西下,断肠人在天涯)")
+    parser.add_argument("--source_folder", default="/gpfsnyu/scratch/yl10337/normal_pingfang",type=str, required=False, help="Path to source images")
+    parser.add_argument("--output_file", default="/gpfsnyu/scratch/yl10337/GAN_calligraphy_grid.png", type=str, required=False, help="Path to save the output grid image")
+    args = parser.parse_args()
+    infer_and_save_grid(args.input_string, args.source_folder, generator, transform, device, args.output_file)
+    print(f"Calligraphy grid saved to {args.output_file}")

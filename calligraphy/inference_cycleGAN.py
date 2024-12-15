@@ -6,6 +6,7 @@ from PIL import Image
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+import argparse
 
 # Define device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -70,7 +71,7 @@ class Generator(nn.Module):
 
 # Load the trained CycleGAN model
 G_XtoY = Generator().to(device)
-checkpoint_path = "/gpfsnyu/scratch/yl10337/cycleGAN_checkpoints/checkpoint_epoch_3.pth"
+checkpoint_path = "/gpfsnyu/scratch/yl10337/cycleGAN_checkpoints/checkpoint_epoch_52.pth"
 checkpoint = torch.load(checkpoint_path, map_location=device)
 G_XtoY.load_state_dict(checkpoint['G_XtoY'])
 G_XtoY.eval()
@@ -127,10 +128,14 @@ def infer_and_save_grid(input_string, source_folder, model, transform, device, o
     # Save the grid image
     Image.fromarray(grid).convert("L").save(output_path)
 
-# Example usage
+
+# Example usage with argparse
 if __name__ == "__main__":
-    input_string = "枯藤老树昏鸦,小桥流水人家,古道西风瘦马.夕阳西下,断肠人在天涯."
-    source_image_folder = "/gpfsnyu/scratch/yl10337/normal_pingfang"
-    output_file_path = "/gpfsnyu/scratch/yl10337/cycleGAN_calligraphy_grid.png"
-    infer_and_save_grid(input_string, source_image_folder, G_XtoY, transform, device, output_file_path)
-    print(f"Calligraphy grid saved to {output_file_path}")
+    parser = argparse.ArgumentParser(description="Generate calligraphy grid from input string using CycleGAN")
+    parser.add_argument("--input_string", type=str, required=True, help="Chinese character string (e.g., 枯藤老树昏鸦,小桥流水人家,古道西风瘦马.夕阳西下,断肠人在天涯)")
+    parser.add_argument("--source_folder", default="/gpfsnyu/scratch/yl10337/normal_pingfang",type=str, required=False, help="Path to source images")
+    parser.add_argument("--output_file", default="/gpfsnyu/scratch/yl10337/cycleGAN_calligraphy_grid.png", type=str, required=False, help="Path to save the output grid image")
+    args = parser.parse_args()
+
+    infer_and_save_grid(args.input_string, args.source_folder, G_XtoY, transform, device, args.output_file)
+    print(f"Calligraphy grid saved to {args.output_file}")
