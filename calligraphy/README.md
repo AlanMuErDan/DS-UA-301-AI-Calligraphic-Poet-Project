@@ -45,6 +45,8 @@ We use two standard evaluation metrics to evaluate different models:
 
 2. **OCR Accuracy:** We use *easyocr* to recognize characters. After that we calculate accuracy score. The calculation function is stored in *utils* folder name ``OCR_detector.py``. One can simply get the score by ``evaluate_ocr_accuracy.py``. 
 
+The performance on the *bdsr* is: 
+
 | Model      | Style Score | OCR Accuracy |
 |------------|-------------|--------------|
 | GAN        | 0.8790      | 68%          |
