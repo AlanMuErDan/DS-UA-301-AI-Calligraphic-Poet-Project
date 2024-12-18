@@ -20,10 +20,16 @@ Since the images in the dataset are compiled from different datasets that are no
 
 
 ## Model 
-For the image captioning section, our goal is to finetune the GIT transformer model to output Chinese image captions (it is initially intended to output English image captions). We froze the layers associated with identifying image features and fine tuned the layers related to the word embedding and caption generation. We also ran a random search to determine the most optimal hyperparameters for the model. The model is evaluated using BLEU-1, BLEU-2, and METEOR scores. Compared to the original model, we were able to achieve lower BLEU scores but higher METEOR scores. The best model weights have been saved into a file named 'final_model' and is linked [here](https://drive.google.com/file/d/17q0t5qMDtpMwTMP_EzT2C8gsa2vFxoi_/view?usp=sharing). 
+For the image captioning section, our goal is to finetune the GIT transformer model to output Chinese image captions (it is initially intended to output English image captions). We froze the layers associated with identifying image features and fine tuned the layers related to the word embedding and caption generation. We also ran a random search to determine the most optimal hyperparameters for the model. The model is evaluated using BLEU-1, BLEU-2, and METEOR scores. It achieved a BLEU-1 score of 36, BLEU-2 score of 24, and a METEOR score of 40. Compared to the original model, we were able to achieve lower BLEU scores but higher METEOR scores. The best model weights have been saved into a file named 'final_model' and is linked [here](https://drive.google.com/file/d/17q0t5qMDtpMwTMP_EzT2C8gsa2vFxoi_/view?usp=sharing). 
 
 For more information regarding the Model Creation Process, check out the [code](https://github.com/AlanMuErDan/DS-UA-301-AI-Calligraphic-Poet-Project/blob/main/caption/ModelCreation.py).
 
+
+Reference to GIT model paper: 
+Wang, J., Yang, Z., Hu, X., Li, L., Lin, K., Gan, Z., Liu, Z., Liu, C., & Wang, L. (2022). GIT: A Generative Image-to-text Transformer for Vision and Language. <em>ArXiv, abs/2205.14100</em>. 
+
+Link to GIT model on Hugging Face: 
+https://huggingface.co/microsoft/git-base 
 
 ## Using the Model 
 If you want to try the model for yourself, you will have to download the 'final_model' weights from the Google Drive [here](https://drive.google.com/file/d/17q0t5qMDtpMwTMP_EzT2C8gsa2vFxoi_/view?usp=sharing).
