@@ -1,4 +1,6 @@
 # Poetry Generation
+The Poem generator inputs image captioning and generates related poetry
+
 
 The Implementation of the poem generator is heavily influenced and inspired by [SongNet](https://github.com/lipiji/SongNet).
 
